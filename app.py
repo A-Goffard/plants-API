@@ -52,6 +52,18 @@ def getPlantById(id):
         print("[SERVER]: Error ->", e)
         return jsonify({"msg": "Ha ocurrido un error"}), 500
 
+@app.route("/api/plant/<string:soil>", methods=["GET"])
+def getPlantsBySoil(soil):
+    try:
+        plants = Plants.query.filter_by(soil=soil).all()
+        if not plants:
+            return jsonify({"msg": f"No hay plantas asociadas al tipo de suelo '{soil}'"}), 404
+        else:
+            return jsonify([plant.serialize() for plant in plants]), 200
+    except Exception as e:
+        exception("[SERVER]: Error ->", e)
+        return jsonify({"msg": "Ha ocurrido un error"}), 500
+
 
 
 @app.route("/api/findplant", methods=["GET"])
@@ -109,7 +121,7 @@ def getPlant():
         if "otros" in request.args:
             fields["otros"] = request.args["otros"]
 
-        plant = Plants.query.filter_by(**fields).first()
+        plant = Plants.query.filter_by(**fields).all()
         if not plant:
             return jsonify({"msg": "Esta planta no está en la lista"}), 200
         else:
@@ -121,4 +133,4 @@ def getPlant():
 
 
 if __name__ =="__main__":
-    app.run(debug=True, port=4000)
+    app.run(debug=True, port=5000)
